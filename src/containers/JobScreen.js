@@ -5,6 +5,8 @@ import SwipeableItem from '../components/common/elements/SwipeableItem'
 import { bindActionCreators } from 'redux'
 import { deleteJob } from '../actions/homeActions'
 
+const rowHeight = 100
+
 const REGEX_FIRST_SENTENCE = /(^.*?[a-z]{2,}[.!?])\s+\W*[A-Z]/
 
 function getFirstSentence(data) {
@@ -12,10 +14,10 @@ function getFirstSentence(data) {
   return arr[1]; 
 }
 
-const JobItem = ({ item, categoryKey, doDeleteJob }) => (
+const JobItem = ({ detailIndex, index, onPressRow, item, categoryKey, doDeleteJob }) => (
   <SwipeableItem deleteItem={() => doDeleteJob({ categoryKey, itemKey: item._id})}>
     <TouchableOpacity
-      onPress={() => console.log()}
+      onPress={() => onPressRow()}
     >
       <View style={styles.jobItem}>
         <Image
@@ -34,6 +36,11 @@ const JobItem = ({ item, categoryKey, doDeleteJob }) => (
         </View>
       </View>
     </TouchableOpacity>
+    {detailIndex === index &&
+      <View style={styles.detailItem}>
+        <Text numberOfLines={5}>{item.description}</Text>
+      </View>
+    }
   </SwipeableItem>
 )
 
@@ -43,16 +50,30 @@ class JobScreen extends React.Component {
     headerTintColor: '#2f2a2a',
   })
 
+  state = {
+    detailIndex: null
+  }
+
   onRefresh = () => {}
 
   onLoadMore = () => {}
 
-  onPressCategory = () => {
-
+  onPressRow = index => {
+    const { detailIndex } = this.state
+    this.setState({
+      detailIndex: detailIndex === index ? null : index
+    })
+    if (this.flatlist) {
+      this.flatlist.scrollToOffset({
+        animated: true,
+        offset: index * (rowHeight + 1) - 10
+      })
+    }
   }
 
   render() {
     const { navigation, jobContainer, doDeleteJob } = this.props
+    const { detailIndex } = this.state
     const categoryKey = navigation.getParam('key', '')
     const categoryName = navigation.getParam('name', '')
     let jobs = []
@@ -66,14 +87,20 @@ class JobScreen extends React.Component {
           <Text style={styles.header}>{categoryName}</Text>
         </View>
         <FlatList 
+          ref={flatlist => {
+            this.flatlist = flatlist
+          }}
+          extraData={{ array: [...jobs], detailIndex }}
           data={jobs}
           refreshing={false}
           keyExtractor={(item, index) => index}
-          renderItem={({item}) => <JobItem 
+          renderItem={({ item, index }) => <JobItem 
             item={item} 
             categoryKey={categoryKey}
-            onPress={this.onPressCategory} 
+            onPressRow={() => this.onPressRow(index)} 
             doDeleteJob={doDeleteJob}
+            detailIndex={detailIndex}
+            index={index}
           />}
           onRefresh={this.onRefresh}
           onEndReached={this.onLoadMore}
@@ -111,9 +138,9 @@ const styles = StyleSheet.create({
   },
   jobItem: {
     padding: 15,
-    marginBottom: 5,
     marginLeft: 15,
     marginRight: 15,
+    marginTop: 10,
     backgroundColor: '#FFF',
     flexDirection: 'row'
   },
@@ -130,5 +157,15 @@ const styles = StyleSheet.create({
   },
   dataDescription: {
     color: 'grey'
+  },
+  detailItem: {
+    height: rowHeight,
+    paddingLeft: 15,
+    paddingRight: 15,
+    paddingBottom: 15,
+    marginLeft: 15,
+    marginRight: 15,
+    backgroundColor: '#FFF',
+    flexDirection: 'row'
   }
 })
