@@ -142,7 +142,8 @@ const styles = StyleSheet.create({
     marginRight: 15,
     marginTop: 10,
     backgroundColor: '#FFF',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    height: 80,
   },
   image: {
     width: 32,
