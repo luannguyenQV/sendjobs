@@ -13,6 +13,7 @@
     "react-native": "0.51.1",
     "react-native-debugger-open": "^0.3.17",
     "react-native-elements": "^0.19.1",
+    "react-native-interactable": "^0.1.10",
     "react-navigation": "^2.18.0",
     "react-redux": "^5.0.7",
     "redux": "^4.0.1",

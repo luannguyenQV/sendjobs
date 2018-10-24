@@ -1,1 +1,2 @@
 export const INIT_HOME_DATA = 'HOME/INIT_HOME_DATA'
+export const DELETE_JOB = 'HOME/DELETE_JOB'

@@ -1,6 +1,9 @@
 import React from 'react'
 import { View, StyleSheet, TouchableOpacity, Text, FlatList, Image } from 'react-native'
 import { connect } from 'react-redux'
+import SwipeableItem from '../components/common/elements/SwipeableItem'
+import { bindActionCreators } from 'redux'
+import { deleteJob } from '../actions/homeActions'
 
 const REGEX_FIRST_SENTENCE = /(^.*?[a-z]{2,}[.!?])\s+\W*[A-Z]/
 
@@ -9,21 +12,23 @@ function getFirstSentence(data) {
   return arr[1]; 
 }
 
-const JobItem = ({ item }) => (
-  <TouchableOpacity
-    onPress={() => onPress(item.key, item.name)}
-  >
-    <View style={styles.jobItem}>
-      <Image
-        style={styles.image}
-        source={{uri: item.image}}
-      />      
-      <View style={styles.data}>
-        <Text style={styles.dataTitle}>{item.title}</Text>
-        <Text style={styles.dataDescription}>{getFirstSentence(item.description)}</Text>
+const JobItem = ({ item, categoryKey, doDeleteJob }) => (
+  <SwipeableItem deleteItem={() => doDeleteJob({ categoryKey, itemKey: item._id})}>
+    <TouchableOpacity
+      onPress={() => console.log()}
+    >
+      <View style={styles.jobItem}>
+        <Image
+          style={styles.image}
+          source={{uri: item.image}}
+        />      
+        <View style={styles.data}>
+          <Text style={styles.dataTitle}>{item.title}</Text>
+          <Text style={styles.dataDescription}>{getFirstSentence(item.description)}</Text>
+        </View>
       </View>
-    </View>
-  </TouchableOpacity>
+    </TouchableOpacity>
+  </SwipeableItem>
 )
 
 class JobScreen extends React.Component {
@@ -41,8 +46,8 @@ class JobScreen extends React.Component {
   }
 
   render() {
-    const { navigation, jobContainer } = this.props
-    const categoryKey = navigation.getParam('key', null)
+    const { navigation, jobContainer, doDeleteJob } = this.props
+    const categoryKey = navigation.getParam('key', '')
     const categoryName = navigation.getParam('name', '')
     let jobs = []
     if (categoryKey) {
@@ -58,7 +63,12 @@ class JobScreen extends React.Component {
           data={jobs}
           refreshing={false}
           keyExtractor={(item, index) => index}
-          renderItem={({item}) => <JobItem item={item} onPress={this.onPressCategory} />}
+          renderItem={({item}) => <JobItem 
+            item={item} 
+            categoryKey={categoryKey}
+            onPress={this.onPressCategory} 
+            doDeleteJob={doDeleteJob}
+          />}
           onRefresh={this.onRefresh}
           onEndReached={this.onLoadMore}
           onEndReachedThreshold={0.3}          
@@ -69,7 +79,11 @@ class JobScreen extends React.Component {
 }
 const mapStateToProps = ({ homeStore: { jobContainer } }) => ({ jobContainer })
 
-const mapDispatchToProps = dispatch => ({})
+const mapDispatchToProps = dispatch => ({
+  ...bindActionCreators({
+    doDeleteJob: deleteJob
+  }, dispatch)
+})
 
 export default connect(
   mapStateToProps,
