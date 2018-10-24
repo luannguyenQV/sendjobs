@@ -3,13 +3,15 @@ const { takeScreenshot } = require ('./helpers')
 describe('Example', () => {
   beforeEach(async () => {
     await device.reloadReactNative();
+    takeScreenshot()
   });
+
+  afterEach(async () => {
+    takeScreenshot()
+  })
+
   
   it('should have welcome screen', async () => {
-    try {
-      await expect(element(by.id('welcome'))).toBeVisible();
-    } catch (e) {
-      takeScreenshot();
-    }
+    await expect(element(by.id('welcome'))).toBeVisible()
   });
 });

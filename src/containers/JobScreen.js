@@ -24,7 +24,13 @@ const JobItem = ({ item, categoryKey, doDeleteJob }) => (
         />      
         <View style={styles.data}>
           <Text style={styles.dataTitle}>{item.title}</Text>
-          <Text style={styles.dataDescription}>{getFirstSentence(item.description)}</Text>
+          <Text 
+            numberOfLines={2}
+            ellipsizeMode={'tail'}
+            style={styles.dataDescription}
+          >
+            {getFirstSentence(item.description)}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
